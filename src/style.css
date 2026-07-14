@@ -1,3 +1,48 @@
 :root {
-  
+  font-family: 'google sans', sans-serif;
+  --jjk-bg: #001D39;     
+  --jjk-primary: #EDF7F6;     
+  --jjk-secondary: #8D0801; 
+}
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body{
+  background-color: var(--jjk-bg);
+  color: var(--jjk-primary);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header, footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--jjk-secondary);
+  text-align: center;
+  padding: 1rem;
+}
+
+main {
+  flex: 1;
+  display: flex;
+}
+
+#gameCanvas {
+  border: 1px solid var(--jjk-primary);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  z-index: 1;
 }
