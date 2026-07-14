@@ -46,3 +46,14 @@ main {
   display: flex;
   z-index: 1;
 }
+
+#gameUI{
+  width: 100%;
+  height: 100%;
+  background-color: var(--jjk-secondary);
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
