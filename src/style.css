@@ -1,11 +1,11 @@
 :root {
-  font-family: 'google sans', sans-serif;
   --jjk-bg: #001D39;     
   --jjk-primary: #EDF7F6;     
-  --jjk-secondary: #8D0801; 
+  --jjk-secondary: #8D0801;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-*{
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -13,9 +13,10 @@
 
 html, body {
   height: 100%;
+  overflow: hidden;
 }
 
-body{
+body {
   background-color: var(--jjk-bg);
   color: var(--jjk-primary);
   display: flex;
@@ -23,37 +24,43 @@ body{
   min-height: 100vh;
 }
 
-header, footer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+header {
   background-color: var(--jjk-secondary);
   text-align: center;
   padding: 1rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  z-index: 10;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 main {
   flex: 1;
   display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  position: relative;
 }
 
 #gameCanvas {
-  border: 1px solid var(--jjk-primary);
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  z-index: 1;
-}
-
-#gameUI{
-  width: 100%;
-  height: 100%;
-  background-color: var(--jjk-secondary);
+  border: 3px solid var(--jjk-secondary);
+  border-radius: 8px;
+  max-width: 100%;
+  max-height: calc(100vh - 160px);
   display: flex;
   justify-content: center;
-  flex-direction: column;
   align-items: center;
-  z-index: 1;
+}
+
+footer {
+  background-color: var(--jjk-secondary);
+  text-align: center;
+  padding: 0.7rem;
+  font-size: 0.85rem;
+  box-shadow: 0 -4px 15px rgba(0,0,0,0.4);
+  z-index: 10;
 }
