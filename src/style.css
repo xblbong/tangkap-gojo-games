@@ -1,40 +1,37 @@
 :root {
-  --jjk-bg: #001D39;     
-  --jjk-primary: #EDF7F6;     
-  --jjk-secondary: #8D0801;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --prussian-blue: #001D39;
+  --azure-mist: #EDF7F6;
+  --amber-glow: #FEA120;
+  --slate-blue: #765CEB;
+  --blood-red: #8D0801;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
-  overflow: hidden;
+  font-family: 'Poppins', sans-serif; /* Font Google Sans-like */
 }
 
 body {
-  background-color: var(--jjk-bg);
-  color: var(--jjk-primary);
+  background-color: var(--prussian-blue);
+  color: var(--azure-mist);
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 header {
-  background-color: var(--jjk-secondary);
+  background-color: var(--blood-red);
   text-align: center;
-  padding: 1rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-  z-index: 10;
+  padding: 10px;
+  border-bottom: 3px solid var(--amber-glow);
 }
 
 header h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
 }
 
 main {
@@ -42,25 +39,18 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
-  position: relative;
 }
 
-#gameCanvas {
-  border: 3px solid var(--jjk-secondary);
-  border-radius: 8px;
-  max-width: 100%;
-  max-height: calc(100vh - 160px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+#game-container {
+  border: 4px solid var(--slate-blue);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 0 25px rgba(0,0,0,0.5);
 }
 
 footer {
-  background-color: var(--jjk-secondary);
+  background-color: var(--blood-red);
   text-align: center;
-  padding: 0.7rem;
-  font-size: 0.85rem;
-  box-shadow: 0 -4px 15px rgba(0,0,0,0.4);
-  z-index: 10;
+  padding: 5px;
+  font-size: 0.75rem;
 }

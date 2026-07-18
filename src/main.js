@@ -1,675 +1,257 @@
 import './style.css';
-
-/* ============================================================
-   TANGKAP GOJO GAMES - Main Game File
-   Multi-scene Phaser 3 Game dengan UI Premium & Audio Support
-   ============================================================ */
+import Phaser from 'phaser';
 
 const GAME_WIDTH  = 480;
 const GAME_HEIGHT = 640;
-const BASE_SPEED  = 220;
-
-/* ──────────────────────────────────────────
-   SCENE 1: PreloadScene - Loading Bar
-   ────────────────────────────────────────── */
-class PreloadScene extends Phaser.Scene {
-  constructor() {
-    super('scene-preload');
-  }
-
-  preload() {
-    // ── Background & Karakter ──
-    this.load.image('bg',      '/assets/bg.png');
-    this.load.image('basket',  '/assets/basket.png');
-    this.load.image('gojo',    '/assets/gojo.png');
-    this.load.image('apple',   '/assets/apple.png');
-    this.load.image('money',   '/assets/money.png');   // fix: was "mone.png"
-    this.load.image('logo',    '/assets/logo.png');
-
-    // ── Audio ──
-    this.load.audio('coin',    '/assets/coin.mp3');
-    this.load.audio('bgMusic', '/assets/bgMusic.mp3');
-
-    // ── Loading UI ──
-    const cx = GAME_WIDTH  / 2;
-    const cy = GAME_HEIGHT / 2;
-
-    // Dark overlay
-    this.add.rectangle(cx, cy, GAME_WIDTH, GAME_HEIGHT, 0x020817);
-
-    // Logo text
-    this.add.text(cx, cy - 100, '⚡ TANGKAP GOJO ⚡', {
-      fontFamily: 'Orbitron, sans-serif',
-      fontSize: '22px',
-      fontStyle: 'bold',
-      color: '#00d4ff',
-      shadow: { color: '#4f8ef7', blur: 20, fill: true }
-    }).setOrigin(0.5);
-
-    this.add.text(cx, cy - 60, 'Loading...', {
-      fontFamily: 'Rajdhani, sans-serif',
-      fontSize: '16px',
-      color: '#c8d6ef',
-    }).setOrigin(0.5);
-
-    // Progress bar background
-    const barBg = this.add.rectangle(cx, cy, 260, 20, 0x0a0f1e);
-    barBg.setStrokeStyle(1, 0x4f8ef7);
-
-    // Progress bar fill
-    const barFill = this.add.rectangle(cx - 130, cy, 0, 16, 0x00d4ff);
-    barFill.setOrigin(0, 0.5);
-
-    // Progress text
-    const pctText = this.add.text(cx, cy + 28, '0%', {
-      fontFamily: 'Rajdhani, sans-serif',
-      fontSize: '14px',
-      color: '#4f8ef7',
-    }).setOrigin(0.5);
-
-    // Update bar on progress
-    this.load.on('progress', (value) => {
-      barFill.width = 260 * value;
-      pctText.setText(Math.floor(value * 100) + '%');
-    });
-  }
-
-  create() {
-    this.scene.start('scene-menu');
-  }
-}
-
-/* ──────────────────────────────────────────
-   SCENE 2: MenuScene - Start Screen
-   ────────────────────────────────────────── */
-class MenuScene extends Phaser.Scene {
-  constructor() {
-    super('scene-menu');
-  }
-
-  create() {
-    const cx = GAME_WIDTH  / 2;
-    const cy = GAME_HEIGHT / 2;
-
-    // ── Background ──
-    this.add.image(0, 0, 'bg').setOrigin(0, 0)
-      .setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
-
-    // Dark gradient overlay
-    const overlay = this.add.graphics();
-    overlay.fillGradientStyle(0x020817, 0x020817, 0x020817, 0x020817, 0.85, 0.85, 0.6, 0.6);
-    overlay.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-    // ── Logo / Title ──
-    const titleBg = this.add.graphics();
-    titleBg.fillStyle(0x000000, 0.4);
-    titleBg.fillRoundedRect(cx - 190, 60, 380, 100, 12);
-    titleBg.lineStyle(1.5, 0x00d4ff, 0.5);
-    titleBg.strokeRoundedRect(cx - 190, 60, 380, 100, 12);
-
-    this.add.text(cx, 100, '⚡ TANGKAP GOJO ⚡', {
-      fontFamily: 'Orbitron, sans-serif',
-      fontSize: '24px',
-      fontStyle: 'bold',
-      color: '#00d4ff',
-      shadow: { color: '#4f8ef7', blur: 25, fill: true, offsetX: 0, offsetY: 0 },
-    }).setOrigin(0.5);
-
-    this.add.text(cx, 135, 'JUJUTSU KAISEN FAN GAME', {
-      fontFamily: 'Rajdhani, sans-serif',
-      fontSize: '14px',
-      fontStyle: 'bold',
-      color: '#9b5de5',
-      letterSpacing: 3,
-    }).setOrigin(0.5);
-
-    // ── Gojo Character Preview (jatuh animasi) ──
-    const gojoPreview = this.add.image(cx, 290, 'gojo')
-      .setDisplaySize(160, 200)
-      .setAlpha(0.9);
-
-    // Gojo floating animation
-    this.tweens.add({
-      targets: gojoPreview,
-      y: 310,
-      duration: 1500,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    });
-
-    // ── Instructions Card ──
-    const cardX = cx - 160;
-    const cardY = 415;
-    const cardW = 320;
-    const cardH = 110;
-
-    const card = this.add.graphics();
-    card.fillStyle(0x0a0f1e, 0.8);
-    card.fillRoundedRect(cardX, cardY, cardW, cardH, 10);
-    card.lineStyle(1, 0x4f8ef7, 0.4);
-    card.strokeRoundedRect(cardX, cardY, cardW, cardH, 10);
-
-    this.add.text(cx, cardY + 18, '📖 CARA BERMAIN', {
-      fontFamily: 'Orbitron, sans-serif',
-      fontSize: '12px',
-      color: '#ffd700',
-    }).setOrigin(0.5);
-
-    this.add.text(cx, cardY + 44, '← → Keyboard  atau  Sentuh layar', {
-      fontFamily: 'Rajdhani, sans-serif',
-      fontSize: '14px',
-      color: '#c8d6ef',
-    }).setOrigin(0.5);
-
-    this.add.text(cx, cardY + 66, 'Tangkap Gojo sebanyak-banyaknya!', {
-      fontFamily: 'Rajdhani, sans-serif',
-      fontSize: '14px',
-      color: '#c8d6ef',
-    }).setOrigin(0.5);
-
-    this.add.text(cx, cardY + 88, '⏱ Waktu: 30 detik  |  Skor makin tinggi = semakin cepat!', {
-      fontFamily: 'Rajdhani, sans-serif',
-      fontSize: '11px',
-      color: '#9b5de5',
-    }).setOrigin(0.5);
-
-    // ── Play Button ──
-    const btnY = 565;
-    const btnW = 200;
-    const btnH = 52;
-
-    const btnBg = this.add.graphics();
-    this._drawBtn(btnBg, cx - btnW/2, btnY - btnH/2, btnW, btnH, false);
-
-    const btnText = this.add.text(cx, btnY, '▶  MULAI GAME', {
-      fontFamily: 'Orbitron, sans-serif',
-      fontSize: '16px',
-      fontStyle: 'bold',
-      color: '#020817',
-    }).setOrigin(0.5);
-
-    // Interactive play button zone
-    const btnZone = this.add.zone(cx, btnY, btnW, btnH).setInteractive({ useHandCursor: true });
-
-    const startGameFade = () => {
-      this.cameras.main.fadeOut(400, 2, 8, 23);
-      this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start('scene-game');
-      });
-    };
-
-    btnZone.on('pointerover', () => {
-      this._drawBtn(btnBg, cx - btnW/2, btnY - btnH/2, btnW, btnH, true);
-      btnText.setScale(1.06);
-    });
-    btnZone.on('pointerout', () => {
-      this._drawBtn(btnBg, cx - btnW/2, btnY - btnH/2, btnW, btnH, false);
-      btnText.setScale(1);
-    });
-    btnZone.on('pointerdown', startGameFade);
-
-    // Keyboard shortcut: Enter/Space to start
-    const keys = this.input.keyboard.addKeys({ enter: Phaser.Input.Keyboard.KeyCodes.ENTER, space: Phaser.Input.Keyboard.KeyCodes.SPACE });
-    keys.enter.once('down', startGameFade);
-    keys.space.once('down', startGameFade);
-
-    // ── Fade In ──
-    this.cameras.main.fadeIn(600, 2, 8, 23);
-  }
-
-  _drawBtn(gfx, x, y, w, h, hovered) {
-    gfx.clear();
-    if (hovered) {
-      gfx.fillGradientStyle(0x00d4ff, 0x00d4ff, 0x4f8ef7, 0x4f8ef7, 1);
-    } else {
-      gfx.fillGradientStyle(0x4f8ef7, 0x4f8ef7, 0x00d4ff, 0x00d4ff, 1);
-    }
-    gfx.fillRoundedRect(x, y, w, h, 8);
-    gfx.lineStyle(2, hovered ? 0xffffff : 0x00d4ff, 0.6);
-    gfx.strokeRoundedRect(x, y, w, h, 8);
-  }
-}
-
-/* ──────────────────────────────────────────
-   SCENE 3: GameScene - Main Gameplay
-   ────────────────────────────────────────── */
-class GameScene extends Phaser.Scene {
-  constructor() {
-    super('scene-game');
-    this.player        = null;
-    this.target        = null;
-    this.cursor        = null;
-    this.playerSpeed   = BASE_SPEED + 80;
-    this.points        = 0;
-    this.remainingTime = 30;
-    this.textScore     = null;
-    this.textTime      = null;
-    this.timedEvent    = null;
-    this.coinMusic     = null;
-    this.bgMusic       = null;
-    this.emitter       = null;
-    this.isTouching    = false;
-    this.touchX        = 0;
-    this.bgMusicStarted = false;
-    this.timeLowEffect  = false;
-  }
-
-  create() {
-    const cx = GAME_WIDTH / 2;
-
-    // ── Audio (Buat di sini, play setelah user interact) ──
-    this.coinMusic = this.sound.add('coin', { volume: 0.7 });
-    this.bgMusic   = this.sound.add('bgMusic', { loop: true, volume: 0.35 });
-
-    // Play bgMusic saat scene start (user sudah klik tombol Play)
-    if (!this.bgMusicStarted) {
-      this.bgMusic.play();
-      this.bgMusicStarted = true;
-    }
-
-    // ── Background ──
-    this.add.image(0, 0, 'bg').setOrigin(0, 0)
-      .setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
-
-    // Semi-transparent UI bar top
-    const topBar = this.add.graphics();
-    topBar.fillStyle(0x020817, 0.7);
-    topBar.fillRect(0, 0, GAME_WIDTH, 56);
-    topBar.lineStyle(1, 0x4f8ef7, 0.3);
-    topBar.strokeRect(0, 0, GAME_WIDTH, 56);
-
-    // ── Player (Keranjang) ──
-    this.player = this.physics.add.image(
-      cx - 40, GAME_HEIGHT - 90, 'basket'
-    ).setOrigin(0, 0);
-
-    this.player.setImmovable(true);
-    this.player.body.allowGravity = false;
-    this.player.setCollideWorldBounds(true);
-    this.player.setDisplaySize(100, 70);
-    this.player.setSize(
-      this.player.displayWidth  * 0.75,
-      this.player.displayHeight * 0.5
-    ).setOffset(
-      this.player.displayWidth  * 0.12,
-      this.player.displayHeight * 0.4
-    );
-
-    // ── Target (Gojo jatuh) ──
-    this.target = this.physics.add.image(
-      this.getRandomX(), -60, 'gojo'
-    ).setOrigin(0, 0);
-
-    this.target.setDisplaySize(60, 75);
-    this.target.setMaxVelocity(0, BASE_SPEED * 1.5);
-    this.target.body.setGravityY(BASE_SPEED);
-
-    // ── Overlap Detection ──
-    this.physics.add.overlap(this.player, this.target, this.targetHit, null, this);
-
-    // ── Particles (Money burst) ──
-    this.emitter = this.add.particles(0, 0, 'money', {
-      speed:    { min: 80, max: 180 },
-      angle:    { min: 230, max: 310 },
-      scale:    { start: 0.06, end: 0.02 },
-      alpha:    { start: 1, end: 0 },
-      lifespan: 600,
-      gravityY: 200,
-      quantity: 6,
-      duration: 150,
-      emitting: false,
-    });
-    this.emitter.startFollow(
-      this.player,
-      this.player.displayWidth / 2,
-      0,
-      true
-    );
-
-    // ── Keyboard ──
-    this.cursor = this.input.keyboard.createCursorKeys();
-
-    // ── Touch / Mouse Controls ──
-    this.input.on('pointerdown', (ptr) => {
-      this.isTouching = true;
-      this.touchX     = ptr.x;
-    });
-    this.input.on('pointermove', (ptr) => {
-      if (this.isTouching) this.touchX = ptr.x;
-    });
-    this.input.on('pointerup', () => {
-      this.isTouching = false;
-    });
-
-    // ── HUD: Score ──
-    this.textScore = this.add.text(GAME_WIDTH - 14, 14, 'SKOR: 0', {
-      fontFamily: 'Orbitron, sans-serif',
-      fontSize:   '16px',
-      fontStyle:  'bold',
-      color:      '#ffd700',
-      shadow:     { color: '#ffd700', blur: 10, fill: true },
-    }).setOrigin(1, 0).setDepth(10);
-
-    // ── HUD: Timer ──
-    this.textTime = this.add.text(14, 14, '⏱ 30s', {
-      fontFamily: 'Orbitron, sans-serif',
-      fontSize:   '16px',
-      fontStyle:  'bold',
-      color:      '#00d4ff',
-      shadow:     { color: '#00d4ff', blur: 10, fill: true },
-    }).setOrigin(0, 0).setDepth(10);
-
-    // ── HUD: controls hint ──
-    this.add.text(cx, 40, '← Geser → | Sentuh layar', {
-      fontFamily: 'Rajdhani, sans-serif',
-      fontSize:   '12px',
-      color:      'rgba(200,214,239,0.5)',
-    }).setOrigin(0.5, 0).setDepth(10);
-
-    // ── Game Timer: 30 detik ──
-    this.timedEvent = this.time.delayedCall(30000, this.gameOver, [], this);
-
-    // ── Camera Fade In ──
-    this.cameras.main.fadeIn(500, 2, 8, 23);
-  }
-
-  // ── Helper: Random X for falling item ──
-  getRandomX() {
-    return Phaser.Math.Between(10, GAME_WIDTH - 70);
-  }
-
-  // ── Called when player catches target ──
-  targetHit() {
-    // Sound effect
-    this.coinMusic.play();
-
-    // Particle burst
-    this.emitter.start();
-
-    // Score
-    this.points++;
-    this.textScore.setText('SKOR: ' + this.points);
-
-    // Score flash animation
-    this.tweens.add({
-      targets:  this.textScore,
-      scaleX:   1.4,
-      scaleY:   1.4,
-      duration: 100,
-      yoyo:     true,
-      ease:     'Back.easeOut',
-    });
-
-    // Increase speed every 5 points (capped at 2× base)
-    const newSpeedY = Math.min(BASE_SPEED + this.points * 12, BASE_SPEED * 2.2);
-    this.target.body.setGravityY(newSpeedY);
-
-    // Reset target position
-    this.target.setX(this.getRandomX());
-    this.target.setY(-60);
-    this.target.body.reset(this.target.x, -60);
-  }
-
-  // ── Called when timer runs out ──
-  gameOver() {
-    this.bgMusic.stop();
-    this.cameras.main.fadeOut(500, 2, 8, 23);
-    this.cameras.main.once('camerafadeoutcomplete', () => {
-      this.scene.start('scene-gameover', { score: this.points });
-    });
-  }
-
-  // ── Update loop ──
-  update() {
-    // Update timer display
-    const secLeft = Math.ceil(this.timedEvent.getRemainingSeconds());
-    const color   = secLeft <= 10 ? '#e63946' : '#00d4ff';
-    this.textTime.setText('⏱ ' + secLeft + 's');
-    this.textTime.setColor(color);
-
-    // Pulse when time is low
-    if (secLeft <= 10 && !this.timeLowEffect) {
-      this.timeLowEffect = true;
-      this.tweens.add({
-        targets:  this.textTime,
-        scaleX:   1.2,
-        scaleY:   1.2,
-        duration: 400,
-        yoyo:     true,
-        repeat:   -1,
-        ease:     'Sine.easeInOut',
-      });
-    }
-
-    // Reset target if it falls past screen
-    if (this.target.y > GAME_HEIGHT + 20) {
-      this.target.setX(this.getRandomX());
-      this.target.setY(-60);
-      this.target.body.reset(this.target.x, -60);
-    }
-
-    // ── Player movement: Keyboard ──
-    const { left, right } = this.cursor;
-    if (left.isDown) {
-      this.player.setVelocityX(-this.playerSpeed);
-    } else if (right.isDown) {
-      this.player.setVelocityX(this.playerSpeed);
-    } else if (this.isTouching) {
-      // ── Player movement: Touch / Mouse ──
-      const playerCenterX = this.player.x + this.player.displayWidth / 2;
-      const diff = this.touchX - playerCenterX;
-      if (Math.abs(diff) > 6) {
-        this.player.setVelocityX(diff > 0 ? this.playerSpeed : -this.playerSpeed);
-      } else {
-        this.player.setVelocityX(0);
-      }
-    } else {
-      this.player.setVelocityX(0);
-    }
-  }
-}
-
-/* ──────────────────────────────────────────
-   SCENE 4: GameOverScene - Result Screen
-   ────────────────────────────────────────── */
-class GameOverScene extends Phaser.Scene {
-  constructor() {
-    super('scene-gameover');
-  }
-
-  init(data) {
-    this.finalScore = data.score || 0;
-  }
-
-  create() {
-    const cx = GAME_WIDTH  / 2;
-    const cy = GAME_HEIGHT / 2;
-
-    // ── Background ──
-    this.add.image(0, 0, 'bg').setOrigin(0, 0)
-      .setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
-
-    const overlay = this.add.graphics();
-    overlay.fillGradientStyle(0x020817, 0x020817, 0x020817, 0x020817, 0.9, 0.9, 0.75, 0.75);
-    overlay.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-    // ── Rank / Result Card ──
-    const cardX = cx - 170;
-    const cardY = 160;
-    const cardW = 340;
-    const cardH = 280;
-
-    const card = this.add.graphics();
-    card.fillStyle(0x0a0f1e, 0.85);
-    card.fillRoundedRect(cardX, cardY, cardW, cardH, 14);
-    card.lineStyle(1.5, 0x4f8ef7, 0.5);
-    card.strokeRoundedRect(cardX, cardY, cardW, cardH, 14);
-
-    // Title
-    this.add.text(cx, cardY + 30, '🏁 GAME SELESAI 🏁', {
-      fontFamily: 'Orbitron, sans-serif',
-      fontSize:   '18px',
-      fontStyle:  'bold',
-      color:      '#ffd700',
-      shadow:     { color: '#ffd700', blur: 16, fill: true },
-    }).setOrigin(0.5);
-
-    // Gojo image
-    this.add.image(cx, cardY + 115, 'gojo')
-      .setDisplaySize(90, 112)
-      .setAlpha(0.85);
-
-    // Score
-    this.add.text(cx, cardY + 185, 'SKOR AKHIR', {
-      fontFamily: 'Rajdhani, sans-serif',
-      fontSize:   '14px',
-      color:      '#9b5de5',
-      letterSpacing: 3,
-    }).setOrigin(0.5);
-
-    const scoreText = this.add.text(cx, cardY + 215, this.finalScore, {
-      fontFamily: 'Orbitron, sans-serif',
-      fontSize:   '52px',
-      fontStyle:  'bold',
-      color:      '#00d4ff',
-      shadow:     { color: '#00d4ff', blur: 24, fill: true },
-    }).setOrigin(0.5);
-
-    // Score count-up animation
-    const targetScore = this.finalScore;
-    let displayScore  = 0;
-    const countUp = this.time.addEvent({
-      delay: Math.max(20, Math.floor(1200 / Math.max(targetScore, 1))),
-      repeat: targetScore - 1,
-      callback: () => {
-        displayScore++;
-        scoreText.setText(displayScore);
-      },
-    });
-
-    // Rank badge
-    let rank = '🌟 RANK D';
-    let rankColor = '#c8d6ef';
-    if (targetScore >= 30) { rank = '⚡ RANK SSS'; rankColor = '#ffd700'; }
-    else if (targetScore >= 20) { rank = '🔥 RANK SS'; rankColor = '#ff6b35'; }
-    else if (targetScore >= 15) { rank = '💎 RANK S'; rankColor = '#00d4ff'; }
-    else if (targetScore >= 10) { rank = '🏅 RANK A'; rankColor = '#9b5de5'; }
-    else if (targetScore >= 5)  { rank = '⭐ RANK B'; rankColor = '#4f8ef7'; }
-    else if (targetScore >= 2)  { rank = '🌟 RANK C'; rankColor = '#c8d6ef'; }
-
-    this.add.text(cx, cardY + 262, rank, {
-      fontFamily: 'Orbitron, sans-serif',
-      fontSize:   '16px',
-      fontStyle:  'bold',
-      color:      rankColor,
-      shadow:     { color: rankColor, blur: 12, fill: true },
-    }).setOrigin(0.5);
-
-    // ── High Score tip ──
-    this.add.text(cx, cardY + cardH + 20, targetScore >= 20
-      ? '🔥 Luar biasa! Kamu master Tangkap Gojo!'
-      : '💪 Coba lagi, raih skor lebih tinggi!', {
-      fontFamily: 'Rajdhani, sans-serif',
-      fontSize:   '14px',
-      color:      'rgba(200,214,239,0.7)',
-    }).setOrigin(0.5);
-
-    // ── Buttons Row ──
-    const btnY = 560;
-
-    // Main Menu Button
-    this._makeBtn(cx - 90, btnY, 160, 46, '🏠 MENU', '#9b5de5', '#4a1f7a', () => {
-      this.cameras.main.fadeOut(350, 2, 8, 23);
-      this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start('scene-menu');
-      });
-    });
-
-    // Retry Button
-    this._makeBtn(cx + 90, btnY, 160, 46, '🔄 MAIN LAGI', '#00d4ff', '#0a3d52', () => {
-      this.cameras.main.fadeOut(350, 2, 8, 23);
-      this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start('scene-game');
-      });
-    });
-
-    // ── Particle Celebration ──
-    this.time.delayedCall(600, () => {
-      const celebEmitter = this.add.particles(cx, -20, 'money', {
-        speed:    { min: 100, max: 280 },
-        angle:    { min: 60, max: 120 },
-        scale:    { start: 0.07, end: 0.02 },
-        alpha:    { start: 1, end: 0 },
-        lifespan: 1800,
-        gravityY: 180,
-        quantity: 3,
-        frequency: 80,
-      });
-      this.time.delayedCall(2500, () => celebEmitter.stop());
-    });
-
-    // ── Camera Fade In ──
-    this.cameras.main.fadeIn(500, 2, 8, 23);
-  }
-
-  _makeBtn(x, y, w, h, label, colorHex, darkHex, callback) {
-    const halfW = w / 2;
-    const halfH = h / 2;
-
-    const colorInt = Phaser.Display.Color.HexStringToColor(colorHex).color;
-    const darkInt  = Phaser.Display.Color.HexStringToColor(darkHex).color;
-
-    const gfx = this.add.graphics();
-    const drawBtn = (hovered) => {
-      gfx.clear();
-      gfx.fillStyle(hovered ? colorInt : darkInt, 1);
-      gfx.fillRoundedRect(x - halfW, y - halfH, w, h, 8);
-      gfx.lineStyle(1.5, colorInt, hovered ? 1 : 0.6);
-      gfx.strokeRoundedRect(x - halfW, y - halfH, w, h, 8);
-    };
-    drawBtn(false);
-
-    this.add.text(x, y, label, {
-      fontFamily: 'Orbitron, sans-serif',
-      fontSize:   '13px',
-      fontStyle:  'bold',
-      color:      '#ffffff',
-    }).setOrigin(0.5).setDepth(5);
-
-    const zone = this.add.zone(x, y, w, h).setInteractive({ useHandCursor: true });
-    zone.on('pointerover', () => drawBtn(true));
-    zone.on('pointerout',  () => drawBtn(false));
-    zone.on('pointerdown', callback);
-  }
-}
-
-/* ──────────────────────────────────────────
-   Phaser Game Config
-   ────────────────────────────────────────── */
-const config = {
-  type:   Phaser.CANVAS,
-  width:  GAME_WIDTH,
-  height: GAME_HEIGHT,
-  parent: 'game-main',
-  backgroundColor: '#020817',
-  physics: {
-    default: 'arcade',
-    arcade: {
-      gravity: { y: 0 },
-      debug:   false,
-    }
-  },
-  scene: [PreloadScene, MenuScene, GameScene, GameOverScene],
-  audio: {
-    disableWebAudio: false,
-  },
-  scale: {
-    mode:       Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    width:      GAME_WIDTH,
-    height:     GAME_HEIGHT,
-  }
+const TARGET_WIN  = 50; 
+
+const COLORS = {
+  blue: 0x001D39,
+  white: 0xEDF7F6,
+  amber: 0xFEA120,
+  slate: 0x765CEB,
+  red: 0x8D0801,
+  green: 0x2ecc71
 };
 
-const game = new Phaser.Game(config);
+/* ── SCENE 1: LOADING ── */
+class PreloadScene extends Phaser.Scene {
+  constructor() { super('scene-preload'); }
+  preload() {
+    this.load.image('pohon', '/assets/pohon.png');
+    this.load.image('abil', '/assets/abil.png');
+    this.load.image('money', '/assets/money.png');
+    this.load.image('love', '/assets/love.png'); 
+    this.load.image('gojo', '/assets/gojo.png');
+    this.load.image('gojo1', '/assets/gojo1.png');
+    this.load.image('gojo2', '/assets/gojo2.png');
+    this.load.image('gojo3', '/assets/gojo3.png');
+    this.load.audio('coin', '/assets/coin.mp3');
+    this.load.audio('bgMusic', '/assets/bgMusic.mp3');
+
+    let cx = GAME_WIDTH/2; let cy = GAME_HEIGHT/2;
+    let bar = this.add.rectangle(cx-100, cy, 0, 20, COLORS.amber).setOrigin(0, 0.5);
+    this.add.rectangle(cx, cy, 200, 20).setStrokeStyle(2, 0xffffff);
+    this.load.on('progress', (v) => { bar.width = 200 * v; });
+  }
+  create() { this.scene.start('scene-menu'); }
+}
+
+/* ── SCENE 2: MENU AWAL ── */
+class MenuScene extends Phaser.Scene {
+  constructor() { super('scene-menu'); }
+  create() {
+    const cx = GAME_WIDTH / 2;
+    // Background lebih gelap agar teks menonjol
+    this.add.image(0,0,'pohon').setOrigin(0).setDisplaySize(GAME_WIDTH, GAME_HEIGHT).setAlpha(0.5);
+
+    // ── JUDUL UTAMA (Dibuat lebih Glow & Berwarna) ──
+    let title = this.add.text(cx, 80, 'TANGKAP GOJO', { 
+      fontSize: '48px', 
+      fontWeight: '900', 
+      color: '#FEA120', 
+      fontFamily: 'Poppins',
+      stroke: '#8fe3ff', // Garis pinggir hitam
+      strokeThickness: 8,
+      shadow: { offsetX: 0, offsetY: 4, color: '#ffffff', blur: 10, fill: true }
+    }).setOrigin(0.5);
+
+    // Animasi judul membesar-mengecil halus
+    this.tweens.add({ targets: title, scale: 1.05, duration: 800, yoyo: true, repeat: -1 });
+
+    // ── KARAKTER GOJO ──
+    const gojoList = ['gojo', 'gojo1', 'gojo2', 'gojo3'];
+    gojoList.forEach((key, index) => {
+        let xPos = 75 + (index * 110);
+        let g = this.add.image(xPos, 240, key).setDisplaySize(90, 115);
+        this.tweens.add({
+            targets: g, y: 260, duration: 1000 + (index * 200),
+            yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+        });
+    });
+
+    // ── KOTAK INSTRUKSI (Dibuat lebih Stylish) ──
+    let infoBox = this.add.rectangle(cx, 430, 420, 170, 0x000000, 0.7)
+        .setStrokeStyle(3, COLORS.amber);
+
+    this.add.text(cx, 375, '📜 MISI KAMU', { 
+        fontSize: '22px', fontWeight: '800', color: '#FEA120', fontFamily: 'Poppins' 
+    }).setOrigin(0.5);
+
+    // Teks deskripsi dengan highlight pada angka
+    this.add.text(cx, 420, 'Tangkap Gojo sebanyak-banyaknya!', { 
+        fontSize: '16px', color: '#EDF7F6', fontFamily: 'Poppins' 
+    }).setOrigin(0.5);
+
+    // Highlight Target Poin
+    this.add.text(cx, 450, `🎯 TARGET: ${TARGET_WIN} POIN`, { 
+        fontSize: '20px', fontWeight: '800', color: '#FEA120', fontFamily: 'Poppins',
+        stroke: '#000', strokeThickness: 4
+    }).setOrigin(0.5);
+
+    // Highlight Durasi
+    this.add.text(cx, 485, `⏱️ WAKTU: 30 DETIK`, { 
+        fontSize: '18px', fontWeight: '800', color: '#2ecc71', fontFamily: 'Poppins',
+        stroke: '#000', strokeThickness: 4
+    }).setOrigin(0.5);
+
+    // ── TOMBOL MULAI (Dibuat lebih modern) ──
+    let btn = this.add.rectangle(cx, 570, 250, 65, COLORS.red).setInteractive({useHandCursor: true});
+    btn.setStrokeStyle(4, COLORS.amber);
+    
+    let btnTxt = this.add.text(cx, 570, 'MULAI GAME', { 
+        fontSize: '26px', fontWeight: '900', color: '#EDF7F6', fontFamily: 'Poppins',
+        stroke: '#000', strokeThickness: 4
+    }).setOrigin(0.5);
+    
+    // Efek saat tombol disentuh
+    btn.on('pointerover', () => { btn.setScale(1.1); btnTxt.setScale(1.1); });
+    btn.on('pointerout', () => { btn.setScale(1); btnTxt.setScale(1); });
+    
+    btn.on('pointerdown', () => this.scene.start('scene-game'));
+  }
+}
+
+/* ── SCENE 3: GAMEPLAY ── */
+class GameScene extends Phaser.Scene {
+  constructor() { super('scene-game'); }
+  init() {
+    this.score = 0; this.timeLeft = 30; this.currentSpeed = 250;
+    this.isGameOver = false; this.consecutiveMisses = 0; 
+    this.gojoKeys = ['gojo', 'gojo1', 'gojo2', 'gojo3'];
+  }
+  create() {
+    const cx = GAME_WIDTH / 2;
+    this.add.image(0,0,'pohon').setOrigin(0).setDisplaySize(GAME_WIDTH, GAME_HEIGHT).setAlpha(0.6);
+
+    this.moneyParticles = this.add.particles(0, 0, 'money', { speed: 150, scale: {start:0.1, end:0}, lifespan: 600, emitting: false }).setDepth(50);
+    this.loveParticles = this.add.particles(0, 0, 'love', { speed: 200, scale: {start:0.15, end:0}, lifespan: 800, gravityY: -100, emitting: false, tint: [0xff69b4, 0xff0000] }).setDepth(51);
+
+    this.player = this.physics.add.image(cx, GAME_HEIGHT - 80, 'abil').setDisplaySize(90, 100).setCollideWorldBounds(true).setImmovable(true).setDepth(20);
+    this.gojos = this.physics.add.group();
+    for (let i = 0; i < 3; i++) { this.spawnGojo(); }
+
+    this.scoreText = this.add.text(20, 20, '⭐ POIN: 0 / ' + TARGET_WIN, { fontSize: '20px', fontWeight: '800', fill: '#EDF7F6', fontFamily: 'Poppins' }).setDepth(100);
+    this.timeText = this.add.text(GAME_WIDTH - 20, 22, '⏱️ 30s', { fontSize: '20px', fontWeight: '800', fill: '#2ecc71', fontFamily: 'Poppins' }).setOrigin(1,0).setDepth(100);
+
+    this.missContainer = this.add.container(cx, GAME_HEIGHT/2).setDepth(200).setAlpha(0);
+    this.missBg = this.add.rectangle(0, 0, 420, 100, 0x000000, 0.7).setStrokeStyle(3, COLORS.amber);
+    this.missText = this.add.text(0, 0, '', { fontSize: '24px', fontWeight: '900', color: '#fff', fontFamily: 'Poppins', align: 'center', wordWrap: {width:380} }).setOrigin(0.5);
+    this.missContainer.add([this.missBg, this.missText]);
+
+    this.timerEvent = this.time.addEvent({ delay: 1000, callback: () => {
+        this.timeLeft--; this.timeText.setText('⏱️ ' + this.timeLeft + 's');
+        if (this.timeLeft <= 10) this.timeText.setFill('#ff0000');
+        if(this.timeLeft <= 0) this.gameOver();
+    }, loop: true });
+
+    this.physics.add.overlap(this.player, this.gojos, this.catchGojo, null, this);
+    this.cursors = this.input.keyboard.createCursorKeys();
+  }
+  spawnGojo() {
+    let gojo = this.gojos.create(Phaser.Math.Between(50, 430), Phaser.Math.Between(-100, -500), Phaser.Math.RND.pick(this.gojoKeys));
+    gojo.setDisplaySize(70, 90).setVelocityY(this.currentSpeed).setDepth(10);
+  }
+  catchGojo(p, gojo) {
+    this.score++; this.scoreText.setText(`⭐ POIN: ${this.score} / ${TARGET_WIN}`);
+    this.sound.play('coin');
+    this.moneyParticles.emitParticleAt(gojo.x, gojo.y, 5);
+    this.loveParticles.emitParticleAt(gojo.x, gojo.y, 5);
+    if (this.score >= TARGET_WIN) { this.victory(); return; }
+    this.consecutiveMisses = 0; this.resetGojo(gojo);
+    this.currentSpeed += 8; this.gojos.getChildren().forEach(g => g.setVelocityY(this.currentSpeed));
+  }
+  resetGojo(gojo) {
+    gojo.setPosition(Phaser.Math.Between(50, 430), Phaser.Math.Between(-50, -300));
+    gojo.setTexture(Phaser.Math.RND.pick(this.gojoKeys)).setDisplaySize(70, 90);
+  }
+  update() {
+    if(this.isGameOver) return;
+    if (this.cursors.left.isDown) this.player.setVelocityX(-450);
+    else if (this.cursors.right.isDown) this.player.setVelocityX(450);
+    else this.player.setVelocityX(0);
+    if (this.input.activePointer.isDown) this.player.x = Phaser.Math.Linear(this.player.x, this.input.activePointer.x, 0.2);
+    this.gojos.getChildren().forEach(g => { if (g.y > GAME_HEIGHT) { 
+        this.consecutiveMisses++;
+        let p = this.consecutiveMisses === 1 ? "TANGKEP KUCUK! 😠" : this.consecutiveMisses === 2 ? "HEI HEI TANGKEP! 😤" : "BAKAAAAA! 💢👺";
+        this.missText.setText(p); this.missContainer.setAlpha(1).setScale(0.8);
+        this.tweens.add({ targets: this.missContainer, scale: 1, duration: 200, onComplete: () => {
+            this.time.delayedCall(1000, () => this.tweens.add({ targets: this.missContainer, alpha: 0, duration: 300 }));
+        }});
+        this.resetGojo(g); 
+    }});
+  }
+  gameOver() { this.isGameOver = true; this.physics.pause(); this.scene.start('scene-gameover', {score: this.score}); }
+  victory() { this.isGameOver = true; this.physics.pause(); this.scene.start('scene-victory', {score: this.score}); }
+}
+
+/* ── SCENE 4: VICTORY ── */
+class VictoryScene extends Phaser.Scene {
+    constructor() { super('scene-victory'); }
+    create(data) {
+      const cx = GAME_WIDTH/2;
+      // BG Pohon
+      this.add.image(0,0,'pohon').setOrigin(0).setDisplaySize(GAME_WIDTH, GAME_HEIGHT).setAlpha(0.4);
+      this.add.rectangle(0,0, GAME_WIDTH, GAME_HEIGHT, 0x001D39, 0.7).setOrigin(0);
+
+      // Partikel Love (Jumlah dikurangi agar tidak menutupi tulisan)
+      this.add.particles(cx, 250, 'love', {
+          speed: { min: 100, max: 300 }, scale: { start: 0.15, end: 0 },
+          lifespan: 1200, gravityY: 50, quantity: 1, frequency: 100
+      });
+
+      this.add.text(cx, 120, 'CONGRATS! 🎉', { fontSize: '48px', fontWeight: '900', color: '#FEA120', fontFamily: 'Poppins', stroke: '#fff', strokeThickness: 3 }).setOrigin(0.5);
+      this.add.text(cx, 200, 'MISI BERHASIL!', { fontSize: '20px', color: '#EDF7F6', fontFamily: 'Poppins' }).setOrigin(0.5);
+      this.add.text(cx, 260, 'TOTAL POIN: ' + data.score, { fontSize: '35px', fontWeight: '800', color: '#fff', fontFamily: 'Poppins' }).setOrigin(0.5);
+
+      // Tampilkan 4 Gojo berjejer
+      ['gojo', 'gojo1', 'gojo2', 'gojo3'].forEach((key, i) => {
+          this.add.image(75 + i * 110, 380, key).setDisplaySize(80, 105).setAlpha(0.9);
+      });
+
+      let btnRestart = this.add.rectangle(cx, 490, 220, 50, COLORS.amber).setInteractive({useHandCursor:true});
+      this.add.text(cx, 490, 'MAIN LAGI', { color: COLORS.blue, fontWeight: '700', fontFamily: 'Poppins' }).setOrigin(0.5);
+      let btnMenu = this.add.rectangle(cx, 560, 220, 50, COLORS.slate).setInteractive({useHandCursor:true});
+      this.add.text(cx, 560, 'MENU AWAL', { color: '#fff', fontWeight: '700', fontFamily: 'Poppins' }).setOrigin(0.5);
+
+      btnRestart.on('pointerdown', () => this.scene.start('scene-game'));
+      btnMenu.on('pointerdown', () => this.scene.start('scene-menu'));
+    }
+}
+
+/* ── SCENE 5: GAME OVER ── */
+class GameOverScene extends Phaser.Scene {
+  constructor() { super('scene-gameover'); }
+  create(data) {
+    const cx = GAME_WIDTH/2;
+    // BG Pohon
+    this.add.image(0,0,'pohon').setOrigin(0).setDisplaySize(GAME_WIDTH, GAME_HEIGHT).setAlpha(0.4);
+    this.add.rectangle(0,0, GAME_WIDTH, GAME_HEIGHT, 0x001D39, 0.8).setOrigin(0);
+
+    this.add.text(cx, 120, 'WAKTU HABIS!', { fontSize: '45px', fontWeight: '800', color: '#8D0801', fontFamily: 'Poppins', stroke: '#fff', strokeThickness: 2 }).setOrigin(0.5);
+    this.add.text(cx, 200, `SKOR ANDA: ${data.score} / ${TARGET_WIN}`, { fontSize: '28px', color: '#fff', fontFamily: 'Poppins' }).setOrigin(0.5);
+
+    // Tampilkan 4 Gojo berjejer (di Game Over dibuat agak transparan/sedih)
+    ['gojo', 'gojo1', 'gojo2', 'gojo3'].forEach((key, i) => {
+        this.add.image(75 + i * 110, 330, key).setDisplaySize(80, 105).setAlpha(0.5);
+    });
+
+    let btnRestart = this.add.rectangle(cx, 460, 220, 50, COLORS.amber).setInteractive();
+    this.add.text(cx, 460, 'COBA LAGI', { color: COLORS.blue, fontWeight: '700', fontFamily: 'Poppins' }).setOrigin(0.5);
+    let btnMenu = this.add.rectangle(cx, 530, 220, 50, COLORS.slate).setInteractive();
+    this.add.text(cx, 530, 'MENU AWAL', { color: '#fff', fontWeight: '700', fontFamily: 'Poppins' }).setOrigin(0.5);
+
+    btnRestart.on('pointerdown', () => this.scene.start('scene-game'));
+    btnMenu.on('pointerdown', () => this.scene.start('scene-menu'));
+  }
+}
+
+const config = {
+  type: Phaser.AUTO,
+  width: GAME_WIDTH, height: GAME_HEIGHT,
+  parent: 'game-container', backgroundColor: '#001D39',
+  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+  physics: { default: 'arcade', arcade: { debug: false } },
+  scene: [PreloadScene, MenuScene, GameScene, VictoryScene, GameOverScene]
+};
+new Phaser.Game(config);
